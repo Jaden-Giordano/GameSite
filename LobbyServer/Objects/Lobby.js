@@ -5,16 +5,22 @@ class Lobby {
   var clients = [];
   var size;
 
-  constuctor(server, size) {
+  var type; // 0 = Main Lobby (Can only move into other lobbies), 1 = Queue Lobby (Used to queue players for a game)
+
+  var name;
+
+  constuctor(server, size, type) {
     this.server = server;
     this.size = size;
+    this.type = type;
+    this.name = '';
   }
 
   update(dt) {
     for (var i = 0; i < this.clients.length; i++) {
       this.clients[i].update(dt);
     }
-    if (users.length == size) {
+    if (this.type != 0 && allClientsReady()) {
       // Attempt a server transfer
     }
   }
@@ -35,5 +41,13 @@ class Lobby {
     if (index != -1) {
       this.clients.splice(index, 1);
     }
+  }
+
+  function allClientsReady() {
+    for (var i = 0; i < this.clients.length; i++) {
+      if (!this.clients.ready)
+        return false;
+    }
+    return true;
   }
 });
