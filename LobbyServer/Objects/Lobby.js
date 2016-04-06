@@ -1,28 +1,39 @@
 "use strict";
 class Lobby {
-  constuctor(size) {
-    this.users = [];
+
+  var server;
+  var clients = [];
+  var size;
+
+  constuctor(server, size) {
+    this.server = server;
     this.size = size;
-  },
-  userJoin(user) {
-    if (this.users.length < 4) {
-      this.users.push(user);
+  }
+
+  update(dt) {
+    for (var i = 0; i < this.clients.length; i++) {
+      this.clients[i].update(dt);
     }
-  },
-  userLeave(user) {
-    var hanI = -1;
-    for (var i = 0; i < this.users.length; i++) {
-      if (user.handle == users[i].handle) {
-        hanI = i;
-      }
-    }
-    if (hanI != -1) {
-      this.users.splice(hanI, 1);
-    }
-  },
-  update() {
     if (users.length == size) {
       // Attempt a server transfer
+    }
+  }
+
+  function join(client) {
+    if (this.clients.length != size) {
+      client.setLobby(this);
+      this.clients.push(client);
+    }
+  }
+
+  function leave(client) {
+    var index = -1;
+    for (var i = 0; i < this.clients.length; i++) {
+      if (this.clients[i] == client)
+        index = i;
+    }
+    if (index != -1) {
+      this.clients.splice(index, 1);
     }
   }
 });
