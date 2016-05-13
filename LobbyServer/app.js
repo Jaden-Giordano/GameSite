@@ -19,7 +19,7 @@ class Projectile {
   }
 
   update(dt) {
-    if (MathUtil.Vector2Distance(this.start, this.position) > maxDistance) {
+    if (Vector2Distance(this.start, this.position) > maxDistance) {
       this.destroy = true;
     }
     else {
@@ -51,27 +51,31 @@ class Client {
     this.lobby = null;
     this.ready = false;
 
-    this.socket.on("move", function(data) {
-      var x = (data.right)?1:0;
-      x -= (data.left)?1:0;
-      var y = (data.up)?1:0;
-      y -= (data.down)?1:0;
-      if (x != 0 && y != 0) {
-        var mul = Math.sin(45*(Math.PI/180));
-        x *= mul;
-        y *= mul;
-      }
-      this.move(x, y);
-    });
+    this.socket.on("move", this.netmove.bind(this));
 
-    this.socket.on("getUsers", function() {
-      var u = getUserByHandle(handle);
-      if (u != null) {
-        if (this.lobby !== null) {
-          this.socket.emit('returnLobby', this.lobby);
-        }
+    this.socket.on("getUsers", this.netGetUsers.bind(this));
+  }
+
+  netGetUsers() {
+    var u = getUserByHandle(handle);
+    if (u != null) {
+      if (this.lobby !== null) {
+        this.socket.emit('returnLobby', this.lobby);
       }
-    });
+    }
+  }
+
+  netmove(data) {
+    var x = (data.right)?1:0;
+    x -= (data.left)?1:0;
+    var y = (data.up)?1:0;
+    y -= (data.down)?1:0;
+    if (x != 0 && y != 0) {
+      var mul = Math.sin(45*(Math.PI/180));
+      x *= mul;
+      y *= mul;
+    }
+    this.move(x, y);
   }
 
   move(x, y) {
@@ -87,7 +91,7 @@ class Client {
   joinLobby(lob) {
     this.disconnect();
     lob.join(this);
-    this.lobby = lobby;
+    this.lobby = lob;
   }
 
   disconnect() {
@@ -102,19 +106,12 @@ class Client {
 
 class Lobby {
 
-  //var server;
-  //var clients = [];
-  //var size;
-
-  //var type; // 0 = Main Lobby (Can only move into other lobbies), 1 = Queue Lobby (Used to queue players for a game)
-
-  //var name;
-
-  constuctor(server, size, type) {
+  constructor(server, size) {
     this.server = server;
     this.size = size;
-    this.type = type;
     this.name = '';
+
+    this.clients = new Array();
   }
 
   update(dt) {
@@ -127,8 +124,7 @@ class Lobby {
   }
 
   join(client) {
-    if (this.clients.length != size) {
-      client.setLobby(this);
+    if (this.clients.length != this.size) {
       this.clients.push(client);
     }
   }
@@ -158,61 +154,56 @@ var InfiniteLoop = require('infinite-loop');
 
 class Server {
 
-/*
-  var http;
-  var app;
-  var io;
-  var port;
-
-  var il;
-  var lastUpdate;
-  var dt;
-
-  var clients = [];
-  var lobbies = [];
-
-  var mainLobby;
-*/
   constructor(http, app, io, port) {
     this.port = port;
     this.app = app;
     this.io = io;
     this.http = http;
 
+    this.clients = new Array();
+
     this.createLoops();
     this.createLobbies();
     this.createServer();
   }
 
+  listen() {
+    console.log('New server listening on port: '+this.port+'.')
+  }
+
+  get(req, resp) {
+    resp.sendFile(__dirname+"/index.html");
+  }
+
+  onDisconnect(client) {
+    var index = -1;
+    for (var i = 0; i < this.clients.length; i++) {
+      if (this.clients[i] == client) {
+        index = i;
+      }
+    }
+    if (index != -1) {
+      this.clients[i].disconnect();
+      this.clients.splice(index, 1);
+    }
+  }
+
+  onConnection(socket) {
+    var client = new Client(socket);
+    client.joinLobby(this.mainLobby);
+    this.clients.push(client, this);
+
+    socket.on('disconnect', this.onDisconnect.bind(this));
+  }
+
   createServer() {
-    this.http.listen(this.port, function() {
-      console.log('New server listening on port: '+this.port+'.')
-    });
+    this.http.listen(this.port, this.listen.bind(this));
 
     this.app.use(express.static('public'));
 
-    this.app.get('/', function(req, resp) {
-      resp.sendFile(__dirname+"/index.html");
-    });
+    this.app.get('/', this.get.bind(this));
 
-    this.io.on('connection', function(socket) {
-      var client = new Client(socket);
-      client.joinLobby(this.mainLobby);
-      this.clients.push(client, this);
-
-      socket.on('disconnect', function() {
-        var index = -1;
-        for (var i = 0; i < this.clients.length; i++) {
-          if (this.clients[i] == client) {
-            index = i;
-          }
-        }
-        if (index != -1) {
-          this.clients[i].disconnect();
-          this.clients.splice(index, 1);
-        }
-      })
-    });
+    this.io.on('connection', this.onConnection.bind(this));
   }
 
   createLobbies() {
@@ -221,7 +212,6 @@ class Server {
     this.lobbies[0] = new Lobby(this, -1);
     this.lobbies[1] = new Lobby(this, 5);
 
-    console.log(this.lobbies[0].size);
     this.mainLobby = this.lobbies[0];
   }
 
@@ -249,5 +239,4 @@ class Server {
 
 
 var hport = 27015;
-
 var server = new Server(http, app, io, hport);
