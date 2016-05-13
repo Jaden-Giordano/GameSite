@@ -3,6 +3,7 @@ var InfiniteLoop = require('infinite-loop');
 
 class Server {
 
+/*
   var http;
   var app;
   var io;
@@ -16,19 +17,19 @@ class Server {
   var lobbies = [];
 
   var mainLobby;
-
+*/
   constructor(http, app, io, port) {
     this.port = port;
     this.app = app;
     this.io = io;
     this.http = http;
 
-    createServer();
-    createLobbies();
-    createLoops();
+    this.createServer();
+    this.createLobbies();
+    this.createLoops();
   }
 
-  function createServer() {
+  createServer() {
     this.http.listen(this.port, function() {
       console.log('New server listening on port: '+this.port+'.')
     });
@@ -59,7 +60,7 @@ class Server {
     });
   }
 
-  function createLobbies() {
+  createLobbies() {
     lobbies.push(new Lobby(this, -1));
     lobbies.push(new Lobby(this, 5));
     lobbies.push(new Lobby(this, 5));
@@ -68,7 +69,7 @@ class Server {
     this.mainLobby = lobbies[0];
   }
 
-  function createLoops() {
+  createLoops() {
     this.il = new InfiniteLoop;
 
     this.lastUpdate = Date.now();

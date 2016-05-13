@@ -1,5 +1,3 @@
-"use strict";
-
 class Client {
   constructor(socket, server) {
     this.socket = socket;
@@ -10,7 +8,7 @@ class Client {
     this.lobby = null;
     this.ready = false;
 
-    socket.on("move", function(data) {
+    this.socket.on("move", function(data) {
       var x = (data.right)?1:0;
       x -= (data.left)?1:0;
       var y = (data.up)?1:0;
@@ -20,14 +18,14 @@ class Client {
         x *= mul;
         y *= mul;
       }
-      this.mov(x, y);
+      this.move(x, y);
     });
 
-    socket.on("getUsers", function() {
+    this.socket.on("getUsers", function() {
       var u = getUserByHandle(handle);
       if (u != null) {
         if (this.lobby !== null) {
-          socket.emit('returnLobby', this.lobby);
+          this.socket.emit('returnLobby', this.lobby);
         }
       }
     });

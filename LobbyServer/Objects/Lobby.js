@@ -1,4 +1,3 @@
-"use strict";
 class Lobby {
 
   var server;
@@ -50,4 +49,4 @@ class Lobby {
     }
     return true;
   }
-});
+}
