@@ -1,7 +1,7 @@
 "use strict";
-class GameObject extend THREE.Mesh {
+class GameObject{
   constructor(geometry, materials){
-    super(geometry, materials);
+    this.mesh = new THREE.Mesh(geometry, materials);
     this.networkData;
   }
   update(dt) {

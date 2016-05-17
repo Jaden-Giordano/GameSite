@@ -37,7 +37,7 @@ class Player extends GameObject{
       x *= mul;
       y *= mul;
     }
-    this.translateX(x*this.speed*dt);
-    this.translateY(y*dt*this.speed);
+    this.mesh.translateX(x*this.speed*dt);
+    this.mesh.translateY(y*dt*this.speed);
   }
-});
+};

@@ -38,11 +38,11 @@ function init() {
 
   var light = new THREE.AmbientLight( 0x404040 ); // soft white light
 scene.add( light );
-  scene.add(p.getMesh());
-  var wall = createTile('floor');
-  scene.add(wall.mesh);
-  var floor = createTile('wall');
-  scene.add(floor.mesh);
+  scene.add(p.mesh);
+  //var wall = createTile('floor');
+  //scene.add(wall.mesh);
+  //var floor = createTile('wall');
+  //scene.add(floor.mesh);
   camera.position.z = 10;
   document.addEventListener( 'keydown', onKeyDown, false );
   document.addEventListener( 'keyup', onKeyUp, false );
