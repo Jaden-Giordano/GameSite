@@ -1,7 +1,7 @@
 var scene;
 var camera;
 var renderer;
-
+var pointlight;
 
 var lastUpdate = Date.now();
 var p = new Player();
@@ -30,19 +30,23 @@ function init() {
 
   camera = new THREE.OrthographicCamera(-25, 25, 25/aspect, -25/aspect, 1, 1000);
   //camera = new THREE.PerspectiveCamera(45, window.innerWidth-2/window.innerHeight-2, 0.1, 1000);
-
   scene.add(camera);
+  camera.rotation.x = 25 * Math.PI / 180
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(width-4, height-4);
   document.body.appendChild(renderer.domElement);
 
-  var light = new THREE.AmbientLight( 0x404040 ); // soft white light
-scene.add( light );
+  //var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+  //scene.add( light );
+  pointlight = new THREE.PointLight( 0xff0000)
+  p.mesh.position.set(0,0,0);
   scene.add(p.mesh);
-  //var wall = createTile('floor');
-  //scene.add(wall.mesh);
-  //var floor = createTile('wall');
-  //scene.add(floor.mesh);
+  pointlight.position.set(0 ,-3,0);
+  scene.add(pointlight);
+  var wall = createTile('wall', 0, 0);
+  scene.add(wall.mesh);
+  var floor = createTile('floor', 0, 0);
+  scene.add(floor.mesh);
   camera.position.z = 10;
   document.addEventListener( 'keydown', onKeyDown, false );
   document.addEventListener( 'keyup', onKeyUp, false );
@@ -115,6 +119,7 @@ function up() {
 function update(dt) {
     p.update(dt);
     socket.emit('getUsers');
+    //pointlight.position.set(p.mesh.position);
 
     for(var i = 0; i < gameObjects.length; i++){
       gameObjects[i].update();

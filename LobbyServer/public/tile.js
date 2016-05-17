@@ -10,8 +10,6 @@ switch (type) {
         break;
 }
 
-scene.add(tile.mesh);
-
 return tile
 }
 
@@ -36,7 +34,7 @@ class floor extends tiles {
     if (!color) {
       color = 0x00FF00;
     }
-    super(THREE.PlaneGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color:  color}));
+    super(new THREE.PlaneGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color:  color}));
 
   }
 };
