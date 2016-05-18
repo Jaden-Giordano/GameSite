@@ -57,11 +57,8 @@ class Client {
   }
 
   netGetUsers() {
-    var u = getUserByHandle(handle);
-    if (u != null) {
-      if (this.lobby !== null) {
-        this.socket.emit('returnLobby', this.lobby);
-      }
+    if (this.lobby !== null) {
+      this.socket.emit('returnLobby', this.lobby.getUsers());
     }
   }
 
@@ -99,6 +96,10 @@ class Client {
       this.lobby.leave(this);
     }
     this.lobby = null;
+  }
+
+  getContainer() {
+    return {position:this.position, speed:this.speed, ready:this.ready};
   }
 
 }
@@ -147,6 +148,26 @@ class Lobby {
     }
     return true;
   }
+
+  getUsers() {
+    var carr = new Array();
+
+    for (var i = 0; i < this.clients.length; i++) {
+      carr.push(this.clients[i].getContainer());
+    }
+
+    return carr;
+  }
+
+  getContainer() {
+    var cliArContainer = new Array();
+
+    for (var i in this.clients) {
+      cliArContainer.push(i.getContainer())
+    }
+    return {size:this.size, name:this.name, }
+  }
+
 }
 
 
